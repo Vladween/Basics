@@ -23,7 +23,8 @@ Here is an example of how you can use this structure in your programs:
 using namespace basics;
 
 
-// Define Fooable class and derive it from Containable<Fooable, int> to set Fooable as Containable and to process it with int argument
+// Define Fooable class and derive it from Containable<Fooable, int>
+// to set Fooable as Containable and to process it with int argument
 class Fooable : public Containable<Fooable, int>
 {
 public:
