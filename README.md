@@ -7,7 +7,7 @@ If you want to include this library in your Visual Studio project, do these step
 - Download Basics.rar file
 - Unzip it into your local folder
 - In your project go to 'Project'->'Properties'->'C/C++'->'General'->'Additional Include Directories'->'Edit' and choose path to the ...\Basics\include folder.
-- Then go to 'Linker'->'General'->'Additional Library Directories'->'Edit' and choose path to the ...\Basics\lib\Debug or ...\Basics\lib\Release (depends on your solution configuration).
+- Then go to 'Linker'->'General'->'Additional Library Directories'->'Edit' and choose path to the ...\Basics\lib\Debug or ...\Basics\lib\Release (depends on your solution configuration. By default it is set to Debug).
 - Then go to 'Linker'->'Input'->'Additional Dependencies'->'Edit' and write 'Basics.lib' there.
 - Then go to 'Linker'->'System'->'SubSystem' and select 'Windows' there.
 - Then go to 'Linker'->'Advanced'->'Entry Point' and write 'mainCRTStartup' there.
