@@ -150,6 +150,7 @@ It contains several virtual functions (they are not purely virtual, so you dont 
 - event_update - called in every iteration of the event loop
 - update - called in every iteration of the main loop
 - draw - called in every iteration of the main loop right after the window was cleared.
+
 Here is an example of how you can create a standard SFML test using Application class:
 ```c++:
 // Include Application class
