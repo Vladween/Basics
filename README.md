@@ -199,7 +199,7 @@ There are several default app updatables and updaters:
 - Updatable - has purely virtual 'update' function. Function is called every frame in the main loop - Its containers is Updater.
 - EventUpdatable - has purely virtual 'event_update' function. Function is called every frame in the event loop - Its container is EventUpdater.
 - Initializable - has purely virtual 'init' function. Function is called once before Application::init is called - Its container is Initalizer.
-- 
+
 Here is another example of how you can use AppUpdatables int your programs:
 ```c++:
 // Include Application and AppUpdatables
