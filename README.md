@@ -1,6 +1,6 @@
 # Basics Library
 This SFML based library will allow some basic game engine features, like animations, objects, servers, buttons and so on. 
-It consists of several modules: AppBasics, GraphicsBasics, NetworkBasics, OfficeBasics abd GameBasics.
+It consists of several modules: AppBasics, GraphicsBasics, NetworkBasics, OfficeBasics and GameBasics.
 Each of these modules provide their own unique functions and classes for easier game development.
 Lets look at each module individually and what functionality it brings.
 ## AppBasics
@@ -142,4 +142,20 @@ int main()
     return 0;
 }
 ```
+### AppInfo
+AppInfo is a class that provides AppUpdatables with useful informaition about the app. Application class is also derived from AppInfo.
+AppInfo argument is provided as a reference, so it is possible to change some of application data inside of the process functions.
+### AppUpdatables
+AppUpdatables.h file contains some classes that are updated or initialized by the application. They are all processed with the AppInfo argument.
+### Application
+Application is a class that makes any derived class a valid application.
+It contains several virtual functions (they are not purely virtual, so you dont need to override them all):
+- init - called when all containers and initializables are initialized
+- whenWindowCreated - called when window is created
+- event_update - called in every iteration of the event loop
+- update - called in every iteration of the main loop
+- draw - called in every iteration of the main loop right after the window was cleared
+Here is an example of how you can use AppUpdatables and Application in your programs:
+```c++:
 
+```
