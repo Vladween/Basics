@@ -2,7 +2,41 @@
 This SFML based library will allow some basic game engine features, like animations, objects, servers, buttons and so on. 
 It consists of several modules: AppBasics, GraphicsBasics, NetworkBasics, OfficeBasics and GameBasics.
 Each of these modules provide their own unique functions and classes for easier game development.
-Lets look at each module individually and what functionality it brings.
+## How to include
+If you want to include this library in your Visual Studio project, do these steps:
+- Download Basics.rar file
+- Unzip it into your local folder
+- In your project go to 'Project'->'Properties'->'C/C++'->'General'->'Additional Include Directories'->'Edit' and choose path to the ...\Basics\include folder.
+- Then go to 'Linker'->'General'->'Additional Library Directories'->'Edit' and choose path to the ...\Basics\lib\Debug or ...\Basics\lib\Release (depends on your solution configuration).
+- Then go to 'Linker'->'Input'->'Additional Dependencies'->'Edit' and write 'Basics.lib' there.
+- Then go to 'Linker'->'System'->'SubSystem' and select 'Windows' there.
+- Then go to 'Linker'->'Advanced'->'Entry Point' and write 'mainCRTStartup' there.
+- Press 'OK'
+- Go to your project folder and paste all files from ...\Basics\bin\Debug or ...\Basics\bin\Release folder (again, depends on your solution configuration)
+- In your main.cpp file paste current test code:
+```c++:
+#include "AppBasics.h"
+using namespace basics;
+
+class Test : public Application
+{
+public:
+    void init() override
+    {
+        createWindow({200, 200}, "Basics works!");
+        shape.setRadius(100);
+        shape.setFillColor(sf::Color::Green);
+    }
+    void draw() override
+    {
+        window.draw(shape);
+    }
+private:
+    sf::CircleShape shape;
+};
+MAIN(Test)
+```
+And thats about it! Now lets look at each module individually and see what they allow.
 ## AppBasics
 AppBasics is a module for creating, rendering and drawing on your own window and managing scenes in your application.
 But not just that, it also has a unique system of containables and its containers that is used in the entire project.
