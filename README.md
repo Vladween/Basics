@@ -142,11 +142,6 @@ int main()
     return 0;
 }
 ```
-### AppInfo
-AppInfo is a class that provides AppUpdatables with useful informaition about the app. Application class is also derived from AppInfo.
-AppInfo argument is provided as a reference, so it is possible to change some of application data inside of the process functions.
-### AppUpdatables
-AppUpdatables.h file contains some classes that are updated or initialized by the application. They are all processed with the AppInfo argument.
 ### Application
 Application is a class that makes any derived class a valid application.
 It contains several virtual functions (they are not purely virtual, so you dont need to override them all):
@@ -155,7 +150,107 @@ It contains several virtual functions (they are not purely virtual, so you dont 
 - event_update - called in every iteration of the event loop
 - update - called in every iteration of the main loop
 - draw - called in every iteration of the main loop right after the window was cleared
-Here is an example of how you can use AppUpdatables and Application in your programs:
+Here is an example of how you can create a standard SFML test using Application class:
 ```c++:
+// Include Application class
+#include "AppBasics/Application.h"
+// Use basics namespace
+using namespace basics;
 
+// Create your custom Application
+class SFMLTest : public Application
+{
+protected:
+	// This function is called first, right after all containers are initialized
+	void init() override
+	{
+		createWindow({ 200, 200 }, "SFML with Basics works!");
+
+		shape.setRadius(100);
+		shape.setFillColor(sf::Color::Green);
+	}
+	// This function is called when window is cleared.
+	// Right after this function window.display() is called and loop starts all over again
+	void draw() override
+	{
+		window.draw(shape);
+	}
+private:
+	// Create a CircleShape for testing
+	sf::CircleShape shape;
+};
+
+// This macro expands to:
+// int main()
+// {
+//     SFMLTest app;
+//     app.run();
+//	   return 0;
+// }
+MAIN(SFMLTest)
+```
+### AppInfo
+AppInfo is a class that provides AppUpdatables with useful informaition about the app. Application class is derived from AppInfo.
+AppInfo argument is provided as a reference, so it is possible to change some of application data inside of the process functions.
+### AppUpdatables
+AppUpdatables.h file contains some classes that are updated or initialized by the application. They are all processed with the AppInfo& argument.
+There are several default app updatables and updaters:
+- Updatable - has purely virtual 'update' function. Function is called every frame in the main loop. Its containers is Updater.
+- EventUpdatable - has purely virtual 'event_update' function. Function is called every frame in the event loop. Its container is EventUpdater.
+- Initializable - has purely virtual 'init' function. Function is called once before Application::init is called. Its container is Initalizer.
+Here is another example of how you can use AppUpdatables int your programs:
+```c++:
+// Include Application and AppUpdatables
+#include "AppBasics/Application.h"
+// Use basics namespace
+using namespace basics;
+
+// Create your own class containing virtual init, event_update and update functions
+class TestUpdatable : public Updatable, public EventUpdatable, public Initializable
+{
+public:
+	// Constructor with a std::string name argument
+	TestUpdatable(std::string name)
+		: m_name(name)
+	{
+	}
+
+	// Override init function
+	void init(AppInfo& app) override
+	{
+		std::cout << "TestUpdatable " << m_name << " was successfully initialized!\n";
+	}
+
+	// Override event_update function
+	void event_update(AppInfo& app) override
+	{
+		std::cout << "TestUpdatable " << m_name << " was successfully updated in the event loop\n";
+	}
+
+	// Override update function
+	void update(AppInfo& app) override
+	{
+		std::cout << "TestUpdatable " << m_name << " was successfully updated in the main loop\n";
+	}
+protected:
+	// Name that will be printed to console
+	std::string m_name;
+};
+
+// Our application class that will update our updatables
+class AppUpdatablesTest : public Application
+{
+protected:
+	// Initialize application
+	void init() override
+	{
+		// Create window
+		createWindow({ 200, 200 }, "AppUpdatables Test");
+	}
+private:
+	// Create foo and bar updatables
+	TestUpdatable updatable1 = { "foo" }, updatable2 = { "bar" };
+};
+// Main macro
+MAIN(AppUpdatablesTest)
 ```
