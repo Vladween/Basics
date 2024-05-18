@@ -1,6 +1,6 @@
 #pragma once
-#ifndef APP_BASICS_CONFIG_H
-#define APP_BASICS_CONFIG_H
+#ifndef SYSTEM_BASICS_CONFIG_H
+#define SYSTEM_BASICS_CONFIG_H
 
 #ifdef BASICS_EXPORTS
 #define BASICS_API __declspec(dllexport)
@@ -8,13 +8,6 @@
 #define BASICS_API __declspec(dllimport)
 #endif
 
-#if _DEBUG == 1
-#pragma comment(lib, "sfml-system-d.lib")
-#else
-#pragma comment(lib, "sfml-system.lib")
-#endif
-
-#include "SFML/System.hpp"
 #include <vector>
 #include <thread>
 #include <functional>
@@ -27,5 +20,8 @@
 
 #define begin_basics_namespace(name) namespace basics { namespace name {
 #define end_basics_namespace(name) } using namespace name;}
+
+#define begin_private_basics_namespace namespace basics { namespace priv {
+#define end_private_basics_namespace } }
 
 #endif // !APP_BASICS_CONFIG_H

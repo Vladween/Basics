@@ -2,7 +2,7 @@
 #ifndef OFFICE_BASICS_INPUT_H
 #define OFFICE_BASICS_INPUT_H
 
-#include "AppBasics/Config.h"
+#include "SystemBasics/Config.h"
 #include <set>
 #include <list>
 #include <bitset>

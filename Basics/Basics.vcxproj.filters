@@ -39,9 +39,6 @@
     <ClInclude Include="include\GraphicsBasics\RoundedRectangleShape.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\AppBasics\Config.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\AppBasics\Containable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -70,9 +67,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\NetworkBasics\Server.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\NetworkBasics\Network.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\NetworkBasics.h">
@@ -123,10 +117,25 @@
     <ClInclude Include="include\GameBasics\Objects.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\AppBasics\Graphics.h">
+    <ClInclude Include="include\SystemBasics\valid_ptr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\AppBasics\Audio.h">
+    <ClInclude Include="include\SystemBasics\Config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SFMLBasics\Audio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SFMLBasics\Graphics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SFMLBasics\Network.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SFMLBasics\System.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SystemBasics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

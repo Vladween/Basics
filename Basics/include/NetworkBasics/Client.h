@@ -3,7 +3,7 @@
 #define NETWORK_BASICS_CLIENT_H
 
 #include "AppBasics\AppUpdatables.h"
-#include "Network.h"
+#include "SFMLBasics/Network.h"
 
 begin_basics_namespace(network)
 

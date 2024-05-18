@@ -2,13 +2,13 @@
 #ifndef NETWORK_BASICS_SERVER_H
 #define NETWORK_BASICS_SERVER_H
 
-#include "Network.h"
-
-#define NO_CONNECTION_LIMIT 0
+#include "SFMLBasics/Network.h"
 
 begin_basics_namespace(network)
 
 std::ostream server_stream(std::cout.rdbuf());
+
+constexpr auto NO_CONNECTION_LIMIT = 0;
 
 class Server
 {

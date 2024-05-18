@@ -1,15 +1,17 @@
 #pragma once
-#ifndef NETWORK_BASICS_CONFIG_H
-#define NETWORK_BASICS_CONFIG_H
+#ifndef SFML_BASICS_NETWORK_H
+#define SFML_BASICS_NETWORK_H
 
-#include "SFML/Network.hpp"
-#include "AppBasics/AppUpdatables.h"
+#include "SystemBasics/Config.h"
 
 #if _DEBUG == 1
 #pragma comment(lib, "sfml-network-d.lib")
 #else
 #pragma comment(lib, "sfml-network.lib")
 #endif
+
+#include "SFML/Network.hpp"
+
 
 template<typename T>
 sf::Packet& operator<<(sf::Packet& packet, sf::Vector2<T> vec2)

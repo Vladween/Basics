@@ -2,36 +2,12 @@
 #ifndef APP_BASICS_UPDATABLE_H
 #define APP_BASICS_UPDATABLE_H
 
-#include "Config.h"
-#include "SFML/System.hpp"
-#include <signal.h>
-
-/// <summary>
-/// Checks if the pointer points to a valid data
-/// </summary>
-/// <param name="ptr"> - a pointer for checking</param>
-/// <returns>'true' if the pointer is valid, otherwise 'false'</returns>
-bool is_valid(void* ptr)
-{
-	typedef void (*SignalHandlerPointer)(int);
-	SignalHandlerPointer previousHandler;
-	previousHandler = signal(SIGSEGV, [](int signal) { throw "!Access Violation!"; });
-
-	try
-	{
-		*(int*)ptr = *(int*)ptr;
-	}
-	catch (const char*)
-	{
-		return false;
-	}
-	return true;
-}
+#include "SFMLBasics/System.h"
+#include "SystemBasics/valid_ptr.h"
 
 begin_basics_namespace(app)
 
 std::ostream containables_stream(NULL);
-
 
 template<class ContainableT, typename... ProcessArgs>
 class Containable;
@@ -94,6 +70,7 @@ public:
 
 		all_containers.back()->m_containables.push_back((ContainableT*)containable);
 		containable->m_currentContainer = all_containers.back();
+		containable->m_onContainerChanged();
 
 		return true;
 	}
@@ -158,6 +135,7 @@ protected:
 
 		container->m_containables.push_back((ContainableT*)containable);
 		containable->m_currentContainer = container;
+		containable->m_onContainerChanged();
 	}
 private:
 	std::vector<ContainableT*> m_containables;
@@ -185,11 +163,11 @@ class Containable
 public:
 	Containable()
 	{
-		default_init([](ProcessArgs...) {});
+		_default_init([](ProcessArgs...) {}, []() {});
 	}
-	Containable(std::function<void(ProcessArgs...)> process)
+	Containable(std::function<void(ProcessArgs...)> process, std::function<void()> onContainerChanged = [](){})
 	{
-		default_init(process);
+		_default_init(process, onContainerChanged);
 	}
 
 	Containable(const Containable<ContainableT, ProcessArgs...>& other) {}
@@ -210,11 +188,13 @@ public:
 	}
 private:
 	std::function<void(ProcessArgs...)> m_process;
+	std::function<void()> m_onContainerChanged;
 	ContainerT* m_currentContainer = nullptr;
 
-	void default_init(std::function<void(ProcessArgs...)> process)
+	void _default_init(std::function<void(ProcessArgs...)> process, std::function<void()> onContainerChanged)
 	{
 		m_process = process;
+		m_onContainerChanged = onContainerChanged;
 
 		containables_stream << "Containable " << this << " of type " << typeid(*this).name() << " created\n";
 		if (ContainerT::Push(this))

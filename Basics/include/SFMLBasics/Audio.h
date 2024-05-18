@@ -1,6 +1,8 @@
 #pragma once
-#ifndef APP_BASICS_AUDIO_H
-#define APP_BASICS_AUDIO_H
+#ifndef SFML_BASICS_AUDIO_H
+#define SFML_BASICS_AUDIO_H
+
+#include "SystemBasics.h"
 
 #if _DEBUG == 1
 #pragma comment(lib, "sfml-audio-d.lib")
@@ -8,7 +10,6 @@
 #pragma comment(lib, "sfml-audio.lib")
 #endif
 
-#include "Config.h"
 #include "SFML/Audio.hpp"
 
 #endif

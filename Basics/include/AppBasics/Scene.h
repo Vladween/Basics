@@ -70,7 +70,7 @@ private:
 	bool m_isRunning = false;
 };
 
-class BASICS_API SceneManager : public MainLoopUpdater<Scene>, public sf::Drawable
+class SceneManager : public MainLoopUpdater<Scene>, public sf::Drawable
 {
 public:
 	SceneManager()

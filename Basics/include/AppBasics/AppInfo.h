@@ -2,7 +2,7 @@
 #ifndef APP_BASICS_APPINFO_H
 #define APP_BASICS_APPINFO_H
 
-#include "Graphics.h"
+#include "SFMLBasics/Graphics.h"
 
 begin_basics_namespace(app)
 

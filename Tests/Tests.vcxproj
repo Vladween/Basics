@@ -21,32 +21,32 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{474431fb-7289-4559-a88e-f3974ca0d68f}</ProjectGuid>
-    <RootNamespace>Basics</RootNamespace>
+    <ProjectGuid>{50991c67-ce94-4ba8-8095-136a9847b245}</ProjectGuid>
+    <RootNamespace>Tests</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -74,15 +74,12 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;BASICS_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <EnableUAC>false</EnableUAC>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -91,34 +88,29 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;BASICS_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <EnableUAC>false</EnableUAC>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;BASICS_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>E:\Влад\Программирование\Проекты C++\Basics\Basics Library\Basics;E:\Влад\Программирование\Проекты C++\Basics\Basics Library\Basics\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\Влад\Программирование\Проекты C++\Basics\Basics Library\Basics\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>E:\Влад\Программирование\Проекты C++\Basics\Basics Library\Basics\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>E:\Влад\Программирование\Проекты C++\Basics\Basics Library\x64\Debug;E:\Влад\Программирование\Проекты C++\Basics\Basics Library\Basics\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Basics.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -127,76 +119,24 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;BASICS_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>E:\Влад\Программирование\Проекты C++\Basics\Basics Library\Basics;E:\Влад\Программирование\Проекты C++\Basics\Basics Library\Basics\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\Влад\Программирование\Проекты C++\Basics\Basics Library\Basics\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>E:\Влад\Программирование\Проекты C++\Basics\Basics Library\Basics\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>E:\Влад\Программирование\Проекты C++\Basics\Basics Library\x64\Debug;E:\Влад\Программирование\Проекты C++\Basics\Basics Library\Basics\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Basics.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="framework.h" />
-    <ClInclude Include="include\AppBasics.h" />
-    <ClInclude Include="include\AppBasics\AppInfo.h" />
-    <ClInclude Include="include\AppBasics\Application.h" />
-    <ClInclude Include="include\AppBasics\AppUpdatables.h" />
-    <ClInclude Include="include\AppBasics\Scene.h" />
-    <ClInclude Include="include\AppBasics\Containable.h" />
-    <ClInclude Include="include\Basics.h" />
-    <ClInclude Include="include\GameBasics.h" />
-    <ClInclude Include="include\GameBasics\Collider.h" />
-    <ClInclude Include="include\GameBasics\GameScene.h" />
-    <ClInclude Include="include\GameBasics\Map.h" />
-    <ClInclude Include="include\GameBasics\Object.h" />
-    <ClInclude Include="include\GameBasics\Objects.h" />
-    <ClInclude Include="include\GameBasics\RigidBody.h" />
-    <ClInclude Include="include\GameBasics\Trigger.h" />
-    <ClInclude Include="include\GraphicsBasics.h" />
-    <ClInclude Include="include\GraphicsBasics\Animation.h" />
-    <ClInclude Include="include\GraphicsBasics\RoundedRectangleShape.hpp" />
-    <ClInclude Include="include\GraphicsBasics\UserInterface.h" />
-    <ClInclude Include="include\NetworkBasics.h" />
-    <ClInclude Include="include\NetworkBasics\Client.h" />
-    <ClInclude Include="include\NetworkBasics\Server.h" />
-    <ClInclude Include="include\OfficeBasics.h" />
-    <ClInclude Include="include\OfficeBasics\Align.h" />
-    <ClInclude Include="include\OfficeBasics\Button.h" />
-    <ClInclude Include="include\OfficeBasics\Clickable.h" />
-    <ClInclude Include="include\OfficeBasics\Element.h" />
-    <ClInclude Include="include\OfficeBasics\ElementEvent.h" />
-    <ClInclude Include="include\OfficeBasics\Input.h" />
-    <ClInclude Include="include\OfficeBasics\Label.h" />
-    <ClInclude Include="include\OfficeBasics\Menu.h" />
-    <ClInclude Include="include\OfficeBasics\TextBox.h" />
-    <ClInclude Include="include\SFMLBasics\Audio.h" />
-    <ClInclude Include="include\SFMLBasics\Graphics.h" />
-    <ClInclude Include="include\SFMLBasics\Network.h" />
-    <ClInclude Include="include\SFMLBasics\System.h" />
-    <ClInclude Include="include\SystemBasics.h" />
-    <ClInclude Include="include\SystemBasics\Config.h" />
-    <ClInclude Include="include\SystemBasics\valid_ptr.h" />
-    <ClInclude Include="pch.h" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="pch.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="src\Source.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="cpp.hint" />
+    <Image Include="resources\AnimationTest.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2,7 +2,7 @@
 #ifndef OFFICE_BASICS_CLICKABLE_H
 #define OFFICE_BASICS_CLICKABLE_H
 
-#include "AppBasics/Config.h"
+#include "SystemBasics/Config.h"
 
 begin_basics_namespace(office)
 
