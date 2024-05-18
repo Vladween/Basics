@@ -13,12 +13,12 @@ class Animation;
 end_basics_namespace(graphics)
 begin_private_basics_namespace
 
-void _set_as_current(Animation* animation, AnimationManager* manager);
+void _set_as_current_animation(Animation* animation, AnimationManager* manager);
 
 end_private_basics_namespace
 begin_basics_namespace(graphics)
 
-class Animation : public Containable<Animation>, public Updatable
+class Animation : public MainLoopUpdatable<Animation>, public Updatable
 {
 public:
 	friend class AnimationManager;
@@ -144,14 +144,20 @@ public:
 	{
 		return m_shape_target;
 	}
+	const void* getTargetRawPtr() const
+	{
+		if (is_valid(m_sprite_target)) return m_sprite_target;
+		if (is_valid(m_shape_target)) return m_shape_target;
+		return nullptr;
+	}
 
 	void play()
 	{
 		m_isPlaying = true;
 
-		if (!is_valid(Containable<Animation>::getCurrentContainer())) return;
+		if (!is_valid(MainLoopUpdatable<Animation>::getCurrentContainer())) return;
 
-		priv::_set_as_current(this, (AnimationManager*)Containable<Animation>::getCurrentContainer());
+		priv::_set_as_current_animation(this, (AnimationManager*)MainLoopUpdatable<Animation>::getCurrentContainer());
 		_apply_frame();
 	}
 	void pause()
@@ -215,30 +221,33 @@ private:
 	sf::Sprite* m_sprite_target = NULL;
 };
 
-class AnimationManager : public Container<Animation>
+class AnimationManager : public MainLoopUpdater<Animation>
 {
 	friend class Animation;
-	friend void priv::_set_as_current(Animation*, AnimationManager*);
+	friend void priv::_set_as_current_animation(Animation*, AnimationManager*);
 public:
-	AnimationManager() = default;
+	AnimationManager()
+		: MainLoopUpdater<Animation>([&](AppInfo&) { _check_animations(); })
+	{
+	}
 	AnimationManager(sf::Sprite& sprite)
-		: m_sprite_target(&sprite)
+		: m_sprite_target(&sprite), MainLoopUpdater<Animation>([&](AppInfo&) { _check_animations(); })
 	{
 	}
 	AnimationManager(sf::Shape& shape)
-		: m_shape_target(&shape)
+		: m_shape_target(&shape), MainLoopUpdater<Animation>([&](AppInfo&) { _check_animations(); })
 	{
 	}
 
-	using Container<Animation>::endInit;
-	using Container<Animation>::startInit;
+	using MainLoopUpdater<Animation>::endInit;
+	using MainLoopUpdater<Animation>::startInit;
 
 	void setTarget(sf::Sprite& sprite)
 	{
 		m_sprite_target = &sprite;
 		m_shape_target = NULL;
 
-		for (auto animation : Container<Animation>::containables())
+		for (auto animation : MainLoopUpdater<Animation>::containables())
 			animation->apply(*m_sprite_target);
 	}
 	void setTarget(sf::Shape& shape)
@@ -246,10 +255,18 @@ public:
 		m_shape_target = &shape;
 		m_sprite_target = NULL;
 
-		for (auto animation : Container<Animation>::containables())
+		for (auto animation : MainLoopUpdater<Animation>::containables())
 			animation->apply(*m_shape_target);
 	}
-	const void* getTargetPtr()
+	const sf::Sprite* getSpriteTarget() const
+	{
+		return m_sprite_target;
+	}
+	const sf::Shape* getShapeTarget() const
+	{
+		return m_shape_target;
+	}
+	const void* getTargetRawPtr()
 	{
 		if (is_valid(m_sprite_target)) return m_sprite_target;
 		if (is_valid(m_shape_target)) return m_shape_target;
@@ -260,10 +277,22 @@ public:
 	{
 		return m_current;
 	}
+protected:
+	void _check_animations()
+	{
+		for (auto animation : containables())
+		{
+			if (animation->getTargetRawPtr() != getTargetRawPtr())
+			{
+				animation->m_shape_target = m_shape_target;
+				animation->m_sprite_target = m_sprite_target;
+				animation->_apply_frame();
+			}
+		}
+	}
 private:
 	Animation* m_current = NULL;
 
-	sf::Texture* m_texutre = NULL;
 	sf::Sprite* m_sprite_target = NULL;
 	sf::Shape* m_shape_target = NULL;
 };
@@ -272,7 +301,7 @@ end_basics_namespace(graphics)
 
 begin_private_basics_namespace
 
-void _set_as_current(Animation* animation, AnimationManager* manager)
+void _set_as_current_animation(Animation* animation, AnimationManager* manager)
 {
 	if (manager->m_current == animation) return;
 
