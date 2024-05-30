@@ -6,7 +6,6 @@
 
 begin_basics_namespace(app)
 
-
 class Application : public AppInfo,
 	MainLoopUpdaters,  public Updater,
 	EventLoopUpdaters, public EventUpdater,
@@ -101,7 +100,6 @@ private:
 	sf::Uint32 m_windowStyle = sf::Style::Default;
 	bool m_window_created = false;
 };
-
 
 end_basics_namespace(app)
 

@@ -1,13 +1,13 @@
 #pragma once
-#ifndef APP_BASICS_UPDATABLE_H
-#define APP_BASICS_UPDATABLE_H
+#ifndef SYSTEM_BASICS_CONTAINER_H
+#define SYSTEM_BASICS_CONTAINER_H
 
 #include "SFMLBasics/System.h"
-#include "SystemBasics/valid_ptr.h"
+#include "valid_ptr.h"
 
-begin_basics_namespace(app)
+begin_basics_namespace(system)
 
-std::ostream containables_stream(NULL);
+std::ostream containers_stream(NULL);
 
 template<class ContainableT, typename... ProcessArgs>
 class Containable;
@@ -20,16 +20,21 @@ class Container : public sf::NonCopyable
 	friend class ContainableBaseT;
 	static_assert(std::is_base_of<ContainableBaseT, ContainableT>::value, "Class 'ContainableT' must be derived from class 'Containable<ContainableT, ProcessArgs...>'!");
 public:
-	Container(std::function<void(ProcessArgs...)> process = nullptr)
+	Container(std::function<void(ProcessArgs...)> process = nullptr, std::function<void(ContainableT*)> onContainableAdded = nullptr, std::function<void(ContainableT*)> onContainableRemoved = nullptr)
 	{
-		if (process != nullptr && is_valid(&process)) m_processContainables = process;
+		if (process != nullptr)
+			m_processContainables = process;
+		if (onContainableAdded != nullptr) 
+			m_containableAdded = onContainableAdded;
+		if (onContainableRemoved != nullptr) 
+			m_containableRemoved = onContainableRemoved;
 
 		all_containers.push_back(this);
 
-		containables_stream << "Container " << this << " created (type: " << typeid(*this).name() << ")\n";
-		containables_stream << "All containers:\n";
+		containers_stream << "Container " << this << " created (type: " << typeid(*this).name() << ")\n";
+		containers_stream << "All containers:\n";
 		for (auto container : all_containers)
-			containables_stream << "- " << container << "\n";
+			containers_stream << "- " << container << "\n";
 	}
 
 	const bool& initialized() const
@@ -68,22 +73,27 @@ public:
 	{
 		if (!is_valid(containable) || !_BindOnCreate || all_containers.empty()) return false;
 
-		all_containers.back()->m_containables.push_back((ContainableT*)containable);
-		containable->m_currentContainer = all_containers.back();
-		containable->m_onContainerChanged();
+		all_containers.back()->m_containableAdded((ContainableT*)containable);
+		all_containers.back()->m_containables.push_back((ContainableT*)containable);		
+		containable->m_onContainerChanged(all_containers.back());
+		containable->m_currentContainer = all_containers.back();		
 
 		return true;
 	}
-	static void Erase(ContainableBaseT* containable)
+	static bool Erase(ContainableBaseT* containable)
 	{
-		if (!is_valid(containable) || !is_valid(containable->m_currentContainer)) return;
+		if (!is_valid(containable) || !is_valid(containable->m_currentContainer)) return false;
 
 		std::vector<ContainableT*>& containables = containable->m_currentContainer->m_containables;
 
 		auto itr = std::find(containables.begin(), containables.end(), containable);
-		if (itr == containables.end()) return;
+		if (itr == containables.end()) return false;
 
+		containable->m_currentContainer->m_containableRemoved((ContainableT*)containable);
 		containables.erase(itr);
+		containable->m_currentContainer = nullptr;
+
+		return true;
 	}
 protected:
 	void startInit()
@@ -109,6 +119,14 @@ protected:
 		m_initialized = true;
 	}
 
+	std::function<void(ProcessArgs...)> defaultContainerProcessFunction() const
+	{
+		return [&](ProcessArgs... args)
+			{
+				for (ContainableT* containable : containables())
+					processContainable(containable, args...);
+			};
+	}
 	void processContainables(ProcessArgs... args) const
 	{
 		m_processContainables(args...);
@@ -127,15 +145,19 @@ protected:
 		return m_containables;
 	}
 
-	static void Bind(ContainableBaseT* containable, ContainerT* container)
+	static bool Bind(ContainableBaseT* containable, ContainerT* container)
 	{
-		if (!is_valid(containable) || !is_valid(container) || containable->m_currentContainer == container) return;
+		if (!is_valid(containable) || !is_valid(container)) return false;
+		if (containable->m_currentContainer == container) return true;
 
 		Erase(containable);
 
-		container->m_containables.push_back((ContainableT*)containable);
-		containable->m_currentContainer = container;
-		containable->m_onContainerChanged();
+		container->m_containableAdded((ContainableT*)containable);
+		container->m_containables.push_back((ContainableT*)containable);		
+		containable->m_onContainerChanged(container);
+		containable->m_currentContainer = container;	
+
+		return true;
 	}
 private:
 	std::vector<ContainableT*> m_containables;
@@ -144,6 +166,7 @@ private:
 			for (ContainableT* containable : containables())
 				processContainable(containable, args...);
 		};
+	std::function<void(ContainableT*)> m_containableAdded = [](ContainableT*) {}, m_containableRemoved = [](ContainableT*) {};
 	bool m_initialized = false;
 
 	static std::vector<ContainerT*> all_containers;
@@ -163,9 +186,9 @@ class Containable
 public:
 	Containable()
 	{
-		_default_init([](ProcessArgs...) {}, []() {});
+		_default_init([](ProcessArgs...) {}, [](ContainerT*) {});
 	}
-	Containable(std::function<void(ProcessArgs...)> process, std::function<void()> onContainerChanged = [](){})
+	Containable(std::function<void(ProcessArgs...)> process, std::function<void(ContainerT*)> onContainerChanged = [](ContainerT*){})
 	{
 		_default_init(process, onContainerChanged);
 	}
@@ -173,41 +196,42 @@ public:
 	Containable(const Containable<ContainableT, ProcessArgs...>& other) {}
 	const Containable<ContainableT, ProcessArgs...>& operator=(const Containable<ContainableT, ProcessArgs...>& other) { return *this; }
 
-	void bindToContainer(ContainerT& container)
-	{
-		ContainerT::Bind(this, &container);
-	}
-	const ContainerT* getCurrentContainer() const
-	{
-		return m_currentContainer;
-	}
-
 	virtual ~Containable()
 	{
 		ContainerT::Erase(this);
 	}
+
+protected:
+	void _currentContainer(ContainerT& container)
+	{
+		ContainerT::Bind(this, &container);
+	}
+	const ContainerT* _currentContainer() const
+	{
+		return m_currentContainer;
+	}
 private:
 	std::function<void(ProcessArgs...)> m_process;
-	std::function<void()> m_onContainerChanged;
+	std::function<void(ContainerT*)> m_onContainerChanged;
 	ContainerT* m_currentContainer = nullptr;
 
-	void _default_init(std::function<void(ProcessArgs...)> process, std::function<void()> onContainerChanged)
+	void _default_init(std::function<void(ProcessArgs...)> process, std::function<void(ContainerT*)> onContainerChanged)
 	{
 		m_process = process;
 		m_onContainerChanged = onContainerChanged;
 
-		containables_stream << "Containable " << this << " of type " << typeid(*this).name() << " created\n";
+		containers_stream << "Containable " << this << " of type " << typeid(*this).name() << " created\n";
 		if (ContainerT::Push(this))
-			containables_stream << "Containable " << this << " added successfully!\n";
+			containers_stream << "Containable " << this << " added successfully!\n";
 		else
-			containables_stream << "Containable " << this << " failed to add\n";
+			containers_stream << "Containable " << this << " failed to add\n";
 
-		containables_stream << "All containers of type " << typeid(ContainerT).name() << ":\n";
+		containers_stream << "All containers of type " << typeid(ContainerT).name() << ":\n";
 		for (auto container : ContainerT::all_containers)
-			containables_stream << "- " << container << "\n";
+			containers_stream << "- " << container << "\n";
 	}
 };
 
-end_basics_namespace(app)
+end_basics_namespace(system)
 
 #endif

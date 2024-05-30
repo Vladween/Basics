@@ -7,5 +7,7 @@
 #include "AppBasics.h"
 #include "GraphicsBasics.h"
 #include "NetworkBasics.h"
+#include "SystemBasics.h"
+#include "SFMLBasics.h"
 
 #endif

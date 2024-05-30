@@ -39,9 +39,6 @@
     <ClInclude Include="include\GraphicsBasics\RoundedRectangleShape.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\AppBasics\Containable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\AppBasics\AppInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -136,6 +133,33 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\SystemBasics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SystemBasics\Container.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SystemBasics\Manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\AppBasics\Updatable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\AppBasics\EventUpdatable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\AppBasics\Initializable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SFMLBasics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SystemBasics\ChangeTracker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SystemBasics\ConditionClasses.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SFMLBasics\OpenGL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

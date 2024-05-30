@@ -148,8 +148,10 @@
     <ClInclude Include="include\AppBasics\AppInfo.h" />
     <ClInclude Include="include\AppBasics\Application.h" />
     <ClInclude Include="include\AppBasics\AppUpdatables.h" />
+    <ClInclude Include="include\AppBasics\EventUpdatable.h" />
+    <ClInclude Include="include\AppBasics\Initializable.h" />
     <ClInclude Include="include\AppBasics\Scene.h" />
-    <ClInclude Include="include\AppBasics\Containable.h" />
+    <ClInclude Include="include\AppBasics\Updatable.h" />
     <ClInclude Include="include\Basics.h" />
     <ClInclude Include="include\GameBasics.h" />
     <ClInclude Include="include\GameBasics\Collider.h" />
@@ -176,12 +178,18 @@
     <ClInclude Include="include\OfficeBasics\Label.h" />
     <ClInclude Include="include\OfficeBasics\Menu.h" />
     <ClInclude Include="include\OfficeBasics\TextBox.h" />
+    <ClInclude Include="include\SFMLBasics.h" />
     <ClInclude Include="include\SFMLBasics\Audio.h" />
     <ClInclude Include="include\SFMLBasics\Graphics.h" />
     <ClInclude Include="include\SFMLBasics\Network.h" />
+    <ClInclude Include="include\SFMLBasics\OpenGL.h" />
     <ClInclude Include="include\SFMLBasics\System.h" />
     <ClInclude Include="include\SystemBasics.h" />
+    <ClInclude Include="include\SystemBasics\ChangeTracker.h" />
     <ClInclude Include="include\SystemBasics\Config.h" />
+    <ClInclude Include="include\SystemBasics\Container.h" />
+    <ClInclude Include="include\SystemBasics\ConditionClasses.h" />
+    <ClInclude Include="include\SystemBasics\Manager.h" />
     <ClInclude Include="include\SystemBasics\valid_ptr.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>

@@ -2,7 +2,7 @@
 #ifndef APP_BASICS_GRAPHICS_H
 #define APP_BASICS_GRAPHICS_H
 
-#include "SystemBasics/Config.h"
+#include "System.h"
 
 #if _DEBUG == 1
 #pragma comment(lib, "sfml-window-d.lib")

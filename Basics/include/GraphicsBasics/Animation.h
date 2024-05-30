@@ -2,163 +2,181 @@
 #ifndef GRAPHICS_BASICS_ANIMATION_H
 #define GRAPHICS_BASICS_ANIMATION_H
 
-#include "AppBasics/AppUpdatables.h"
-#include "SystemBasics/valid_ptr.h"
+#include "AppBasics/Updatable.h"
+#include "SystemBasics/Manager.h"
+#include "SystemBasics/ChangeTracker.h"
+#include "SFMLBasics/Graphics.h"
 
 begin_basics_namespace(graphics)
 
-class AnimationManager;
 class Animation;
+class AnimationManager;
 
-end_basics_namespace(graphics)
-begin_private_basics_namespace
-
-void _set_as_current_animation(Animation* animation, AnimationManager* manager);
-
-end_private_basics_namespace
-begin_basics_namespace(graphics)
-
-class Animation : public MainLoopUpdatable<Animation>, public Updatable
+template<
+	typename bool_t = bool,
+	typename float_t = float,
+	typename texture_ptr_t = sf::Texture*,
+	typename shape_ptr_t = sf::Shape*,
+	typename sprite_ptr_t = sf::Sprite*
+>
+class AnimationTraits
 {
-public:
+	friend class Animation;
 	friend class AnimationManager;
-
-	bool isPlaying() const
-	{
-		return m_isPlaying;
-	}
-
-	void setFramesCount(size_t count)
-	{
-		m_frames.resize(count);
-	}
-	size_t getFramesCount() const
-	{
-		return m_frames.size();
-	}
-
-	void setFrame(size_t index, sf::IntRect rect)
-	{
-		if (index >= m_frames.size()) return;
-
-		m_frames[index] = rect;
-	}
-	sf::IntRect getFrame(size_t index) const
-	{
-		if (index >= m_frames.size()) return {};
-
-		return m_frames[index];
-	}
-
-	void setFrames(const std::vector<sf::IntRect>& frames)
-	{
-		m_frames = frames;
-	}
-	const std::vector<sf::IntRect>& getFrames()
-	{
-		return m_frames;
-	}
-
-	void setSpeed(float speed)
-	{
-		m_speed = speed;
-	}
-	float getSpeed() const
-	{
-		return m_speed;
-	}
-
-	void setMirrored(bool use_mirrored = true)
-	{
-		m_mirror = use_mirrored;
-	}
+public:
+	virtual void setMirrored(bool mirror = true) = 0;
 	bool isMirrored() const
 	{
 		return m_mirror;
 	}
 
-	void setRepeated(bool repeat = true)
-	{
-		if (repeat) m_finished = false;
-
-		m_repeat = repeat;
-	}
+	virtual void setRepeated(bool repeat = true) = 0;
 	bool isRepeated() const
 	{
 		return m_repeat;
 	}
 
-	bool isFinished() const
+	virtual void setSpeed(float speed) = 0;
+	float getSpeed() const
 	{
-		return m_finished;
+		return m_speed;
 	}
 
-	sf::IntRect getCurrentFrame() const
+	virtual void setMirrorFunction(const std::function<sf::IntRect(const sf::IntRect&)>& getMirroredFrame) = 0;
+	const std::function<sf::IntRect(const sf::IntRect&)>& getMirrorFunction() const
 	{
-		if (!m_mirror) return getNormalCurrentFrame();
-		return getMirroredCurrentFrame();
+		return m_getMirroredFrame;
+	}
+
+	virtual void setTexture(const sf::Texture* texture) = 0;
+	const sf::Texture* getTexture() const
+	{
+		return m_texture;
+	}
+
+	virtual void apply(sf::Shape& shape) = 0;
+	virtual void apply(sf::Sprite& sprite) = 0;
+	const sf::Shape* getShapeTarget() const
+	{
+		return m_shapeTarget;
+	}
+	const sf::Sprite* getSpriteTarget() const
+	{
+		return m_spriteTarget;
+	}
+private:
+	bool_t m_mirror, m_repeat;
+	float_t m_speed = 0;
+	std::function<sf::IntRect(const sf::IntRect&)> m_getMirroredFrame = [](const sf::IntRect& r) { return sf::IntRect(r.left + r.width, r.top, -r.width, r.height); };
+
+	texture_ptr_t m_texture = NULL;
+	shape_ptr_t m_shapeTarget = NULL;
+	sprite_ptr_t m_spriteTarget = NULL;
+};
+
+class Animation : public AnimationTraits<>, public Managable<Animation>, public Updatable
+{
+public:
+	void setFrames(const std::vector<sf::IntRect>& frames)
+	{
+		m_frames = frames;
+
+		if ((size_t)m_currentFrame >= m_frames.size())
+			m_currentFrame = m_frames.size() - 1;
+		_applyFrame();
+	}
+	const std::vector<sf::IntRect>& getFrames() const
+	{
+		return m_frames;
+	}
+
+	void setFrame(size_t index, const sf::IntRect& frame)
+	{
+		if (index >= m_frames.size()) return;
+
+		m_frames[index] = frame;
+
+		if (index == (size_t)m_currentFrame) _applyFrame();
+	}
+	sf::IntRect getNormalFrame(size_t index) const
+	{
+		if (index >= m_frames.size()) return {};
+
+		return m_frames[index];
+	}
+	sf::IntRect getMirroredFrame(size_t index) const
+	{
+		if (index >= m_frames.size()) return {};
+
+		return m_getMirroredFrame(m_frames[index]);
+	}
+	sf::IntRect getFrame(size_t index) const
+	{
+		if (m_mirror) return getMirroredFrame(index);
+		return getNormalFrame(index);
+	}
+
+	void setCurrentFrame(size_t index)
+	{
+		if (index >= m_frames.size())
+			index = m_frames.size() - 1;
+
+		if ((size_t)m_currentFrame == m_frames.size() - 1 && index < m_frames.size() - 1)
+			m_finished = false;
+		if ((size_t)m_currentFrame <= m_frames.size() - 1 && index == m_frames.size() - 1 && !m_repeat)
+			m_finished = true;
+
+		m_currentFrame = index;
+		_applyFrame();
+	}
+	void setCurrentFrame(const sf::IntRect& frame)
+	{
+		if ((size_t)m_currentFrame >= m_frames.size()) return;
+
+		m_frames[(size_t)m_currentFrame] = frame;
 	}
 	sf::IntRect getNormalCurrentFrame() const
 	{
-		if (m_currentFrame >= m_frames.size()) return {};
+		if ((size_t)m_currentFrame >= m_frames.size()) return {};
+
 		return m_frames[(size_t)m_currentFrame];
 	}
 	sf::IntRect getMirroredCurrentFrame() const
 	{
-		if (m_currentFrame >= m_frames.size()) return {};
-		return sf::IntRect(m_frames[(size_t)m_currentFrame].left + m_frames[(size_t)m_currentFrame].width, m_frames[(size_t)m_currentFrame].top,
-			-m_frames[(size_t)m_currentFrame].width, m_frames[(size_t)m_currentFrame].height);
+		if ((size_t)m_currentFrame >= m_frames.size()) return {};
+
+		return m_getMirroredFrame(m_frames[(size_t)m_currentFrame]);
+	}
+	sf::IntRect getCurrentFrame() const
+	{
+		if (m_mirror) return getMirroredCurrentFrame();
+		return getNormalCurrentFrame();
 	}
 	size_t getCurrentFrameIndex() const
 	{
 		return (size_t)m_currentFrame;
 	}
 
-	void setTexture(const sf::Texture* texture)
+	void setFinished(bool finished = true)
 	{
-		m_texture = (sf::Texture*)texture;
-	}
-	const sf::Texture* getTexture() const
-	{
-		return m_texture;
-	}
+		if (m_repeat) return;
 
-	void apply(sf::Shape& shape)
-	{
-		m_shape_target = &shape;
-		m_sprite_target = NULL;
-		_apply_frame();
+		if (finished)
+			end();
+		else
+			reset();
+
+		m_finished = finished;
 	}
-	void apply(sf::Sprite& sprite)
+	bool isFinished() const
 	{
-		m_sprite_target = &sprite;
-		m_shape_target = NULL;
-		_apply_frame();
-	}
-	
-	const sf::Sprite* getSpriteTarget() const
-	{
-		return m_sprite_target;
-	}
-	const sf::Shape* getShapeTarget() const
-	{
-		return m_shape_target;
-	}
-	const void* getTargetRawPtr() const
-	{
-		if (is_valid(m_sprite_target)) return m_sprite_target;
-		if (is_valid(m_shape_target)) return m_shape_target;
-		return nullptr;
+		return m_finished;
 	}
 
 	void play()
 	{
 		m_isPlaying = true;
-
-		if (!is_valid(MainLoopUpdatable<Animation>::getCurrentContainer())) return;
-
-		priv::_set_as_current_animation(this, (AnimationManager*)MainLoopUpdatable<Animation>::getCurrentContainer());
-		_apply_frame();
+		setAsCurrent();
 	}
 	void pause()
 	{
@@ -166,30 +184,90 @@ public:
 	}
 	void reset()
 	{
-		m_currentFrame = 0;
-		if (!m_repeat) m_finished = false;
-		_apply_frame();
+		setCurrentFrame(0);
+	}
+	void end()
+	{
+		setCurrentFrame(m_frames.size() - 1);
 	}
 	void stop()
 	{
 		pause();
 		reset();
-	}	
-protected:
-	void _apply_frame()
+	}
+	const bool& isPlaying() const
 	{
-		bool texture_is_valid = is_valid(m_texture);
-		if (is_valid(m_shape_target))
-		{
-			m_shape_target->setTextureRect(getCurrentFrame());
+		return m_isPlaying;
+	}
 
-			if (texture_is_valid) m_shape_target->setTexture(m_texture);
+	void bindToManager(Manager<Animation>& manager)
+	{
+		Managable<Animation>::_currentContainer(manager);
+	}
+	void unbindFromManager()
+	{
+		Manager<Animation>::Erase(this);
+	}
+	const AnimationManager* getCurrentManager() const
+	{
+		return (const AnimationManager*)Managable<Animation>::_currentContainer();
+	}
+	using Managable<Animation>::_currentContainer;
+
+	void setMirrored(bool mirror = true) override final
+	{
+		m_mirror = mirror;
+		_applyFrame();
+	}
+	void setRepeated(bool repeat = true) override final
+	{
+		m_repeat = repeat;
+	}
+	void setSpeed(float speed) override final
+	{
+		m_speed = speed;
+	}
+	void setMirrorFunction(const std::function<sf::IntRect(const sf::IntRect&)>& getMirroredFrame) override final
+	{
+		m_getMirroredFrame = getMirroredFrame;
+		_applyFrame();
+	}
+	void setTexture(const sf::Texture* texture) override final
+	{
+		m_texture = const_cast<sf::Texture*>(texture);
+		_applyFrame();
+	}
+	void apply(sf::Sprite& sprite) override final
+	{
+		m_spriteTarget = &sprite;
+		m_shapeTarget = NULL;
+		_applyFrame();
+	}
+	void apply(sf::Shape& shape) override final
+	{
+		m_shapeTarget = &shape;
+		m_spriteTarget = NULL;
+		_applyFrame();
+	}
+protected:
+	using Managable<Animation>::setAsCurrent;
+
+
+	void _applyFrame()
+	{
+		if (is_valid(m_shapeTarget))
+		{
+			m_shapeTarget->setTextureRect(getCurrentFrame());
+
+			if (is_valid(m_texture) && m_shapeTarget->getTexture() != m_texture)
+				m_shapeTarget->setTexture(m_texture);
 		}
-		if (is_valid(m_sprite_target))
+		if (is_valid(m_spriteTarget))
 		{
-			m_sprite_target->setTextureRect(getCurrentFrame());
+			m_spriteTarget->setTextureRect(getCurrentFrame());
 
-			if (texture_is_valid) m_sprite_target->setTexture(*m_texture);
+			if (is_valid(m_texture) && m_spriteTarget->getTexture() != m_texture)
+				m_spriteTarget->setTexture(*m_texture);
 		}
 	}
 
@@ -197,119 +275,112 @@ protected:
 	{
 		if (!m_isPlaying) return;
 
-		_apply_frame();
+		_applyFrame();
 
 		m_currentFrame += m_speed * app.deltaTime;
 
 		if ((size_t)m_currentFrame > m_frames.size() - 1)
 		{
-			if (m_repeat) m_currentFrame = 0;
-			else 
+			if (m_repeat) setCurrentFrame(0);
+			else
 			{
+				setCurrentFrame(m_frames.size() - 1);
 				m_finished = true;
-				m_currentFrame = m_frames.size() - 1;
 			}
 		}
 	}
 private:
-	bool m_isPlaying = false, m_mirror = false, m_repeat = true, m_finished = false;
-	float m_speed = 0, m_currentFrame = 0;
-	std::vector<sf::IntRect> m_frames;
 
-	sf::Texture* m_texture = NULL;
-	sf::Shape* m_shape_target = NULL;
-	sf::Sprite* m_sprite_target = NULL;
+
+	bool m_isPlaying = false, m_finished = false;
+	float m_currentFrame = 0;
+	std::vector<sf::IntRect> m_frames;
 };
 
-class AnimationManager : public MainLoopUpdater<Animation>
+
+class AnimationManager : public AnimationTraits<
+	ChangeTracker<bool>,
+	ChangeTracker<float>,
+	PtrChangeTracker<sf::Texture>,
+	PtrChangeTracker<sf::Shape>,
+	PtrChangeTracker<sf::Sprite>>, public Manager<Animation>
 {
-	friend class Animation;
-	friend void priv::_set_as_current_animation(Animation*, AnimationManager*);
 public:
 	AnimationManager()
-		: MainLoopUpdater<Animation>([&](AppInfo&) { _check_animations(); })
-	{
-	}
-	AnimationManager(sf::Sprite& sprite)
-		: m_sprite_target(&sprite), MainLoopUpdater<Animation>([&](AppInfo&) { _check_animations(); })
-	{
-	}
-	AnimationManager(sf::Shape& shape)
-		: m_shape_target(&shape), MainLoopUpdater<Animation>([&](AppInfo&) { _check_animations(); })
-	{
-	}
-
-	using MainLoopUpdater<Animation>::endInit;
-	using MainLoopUpdater<Animation>::startInit;
-
-	void setTarget(sf::Sprite& sprite)
-	{
-		m_sprite_target = &sprite;
-		m_shape_target = NULL;
-
-		for (auto animation : MainLoopUpdater<Animation>::containables())
-			animation->apply(*m_sprite_target);
-	}
-	void setTarget(sf::Shape& shape)
-	{
-		m_shape_target = &shape;
-		m_sprite_target = NULL;
-
-		for (auto animation : MainLoopUpdater<Animation>::containables())
-			animation->apply(*m_shape_target);
-	}
-	const sf::Sprite* getSpriteTarget() const
-	{
-		return m_sprite_target;
-	}
-	const sf::Shape* getShapeTarget() const
-	{
-		return m_shape_target;
-	}
-	const void* getTargetRawPtr()
-	{
-		if (is_valid(m_sprite_target)) return m_sprite_target;
-		if (is_valid(m_shape_target)) return m_shape_target;
-		return nullptr;
-	}
-
-	Animation* getCurrentAnimation() const
-	{
-		return m_current;
-	}
-protected:
-	void _check_animations()
-	{
-		for (auto animation : containables())
-		{
-			if (animation->getTargetRawPtr() != getTargetRawPtr())
+		: Manager<Animation>([]() {}, [&](Animation* anim)
 			{
-				animation->m_shape_target = m_shape_target;
-				animation->m_sprite_target = m_sprite_target;
-				animation->_apply_frame();
-			}
-		}
+				anim->m_getMirroredFrame = m_getMirroredFrame;
+
+				if (m_repeat.changed())
+					anim->setRepeated(m_repeat);
+				if (m_mirror.changed())
+					anim->setMirrored(m_mirror);
+				if (m_speed.changed())
+					anim->setSpeed(m_speed);
+
+				if (m_texture.changed())
+					anim->setTexture((sf::Texture*)m_texture);
+				if (m_shapeTarget.changed() && is_valid(m_shapeTarget))
+					anim->apply(*(sf::Shape*)m_shapeTarget);
+				if (m_spriteTarget.changed() && is_valid(m_spriteTarget))
+					anim->apply(*(sf::Sprite*)m_spriteTarget);
+			}, [](Animation*) {}, [](Animation*) {})
+	{
+	}
+
+	const Animation* getCurrentAnimation() const
+	{
+		return getCurrentManagable();
+	}
+
+	void setMirrored(bool mirror = true) override final
+	{
+		m_mirror = mirror;
+		for (auto animation : containables())
+			animation->setMirrored(mirror);
+	}
+	void setRepeated(bool repeat = true) override final
+	{
+		m_repeat = repeat;
+		for (auto animation : containables())
+			animation->setRepeated(repeat);
+	}
+	void setSpeed(float speed) override final
+	{
+		m_speed = speed;
+		for (auto animation : containables())
+			animation->setSpeed(speed);
+	}
+	void setMirrorFunction(const std::function<sf::IntRect(const sf::IntRect&)>& getMirroredFrame) override final
+	{
+		m_getMirroredFrame = getMirroredFrame;
+		for (auto animation : containables())
+			animation->setMirrorFunction(getMirroredFrame);
+	}
+	void setTexture(const sf::Texture* texture) override final
+	{
+		m_texture = const_cast<sf::Texture*>(texture);
+		for (auto animation : containables())
+			animation->setTexture(texture);
+	}
+	void apply(sf::Sprite& sprite) override final
+	{
+		m_spriteTarget = &sprite;
+		m_shapeTarget = NULL;
+		for (auto animation : containables())
+			animation->apply(sprite);
+	}
+	void apply(sf::Shape& shape) override final
+	{
+		m_shapeTarget = &shape;
+		m_spriteTarget = NULL;
+		for (auto animation : containables())
+			animation->apply(shape);
 	}
 private:
-	Animation* m_current = NULL;
-
-	sf::Sprite* m_sprite_target = NULL;
-	sf::Shape* m_shape_target = NULL;
+	using Manager<Animation>::getCurrentManagable;
 };
 
 end_basics_namespace(graphics)
-
-begin_private_basics_namespace
-
-void _set_as_current_animation(Animation* animation, AnimationManager* manager)
-{
-	if (manager->m_current == animation) return;
-
-	if (is_valid(manager->m_current)) manager->m_current->stop();
-
-	manager->m_current = animation;
-}
-
-end_private_basics_namespace
 
 #endif

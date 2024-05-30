@@ -3,8 +3,8 @@
 #define GRAPHICS_BASICS_H
 
 #include "AppBasics.h"
-#include "GraphicsBasics/RoundedRectangleShape.hpp"
 #include "GraphicsBasics/Animation.h"
+#include "GraphicsBasics/RoundedRectangleShape.hpp"
 #include "GraphicsBasics/UserInterface.h"
 
 #endif

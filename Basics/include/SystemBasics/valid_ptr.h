@@ -2,13 +2,13 @@
 #ifndef SYSTEM_BASICS_VALID_PTR_H
 #define SYSTEM_BASICS_VALID_PTR_H
 
-#include "SystemBasics/Config.h"
+#include "SystemBasics/ConditionClasses.h"
 #include <signal.h>
 #include <sstream>
 
 begin_basics_namespace(system)
 
-bool is_valid(void* ptr)
+inline BASICS_API bool is_valid(void* ptr)
 {
     if (!ptr) return false;
 
@@ -27,31 +27,23 @@ bool is_valid(void* ptr)
     return true;
 }
 
-bool is_valid(const void* ptr)
+inline BASICS_API bool is_valid(const void* ptr)
 {
     return is_valid((void*)ptr);
 }
 
-class invalid_data_error : public std::runtime_error
+class invalid_data_error : public std::exception
 {
 public:
-    using std::runtime_error::runtime_error;
+    using std::exception::exception;
 };
 
 template<typename T>
-class valid_ptr
+class valid_ptr_base
 {
 public:
-    valid_ptr() = default;
-    valid_ptr(T* ptr)
-    {
-        try
-        {
-            _set(ptr);
-        }
-        rethrow(invalid_data_error)
-    }
-    valid_ptr(const T* ptr)
+    valid_ptr_base() = default;
+    valid_ptr_base(const T* const ptr)
     {
         try
         {
@@ -59,15 +51,21 @@ public:
         }
         rethrow(invalid_data_error)
     }
-    T* operator=(T* other)
+
+    operator bool() const
+    {
+        return is_valid(m_ptr);
+    }
+
+    T& operator*() const
     {
         try
         {
-            _set(other);
+            return *_get();
         }
         rethrow(invalid_data_error)
     }
-    const T* operator=(const T* other)
+    T* operator=(const T* const other)
     {
         try
         {
@@ -75,16 +73,7 @@ public:
         }
         rethrow(invalid_data_error)
     }
-
-    operator T* ()
-    {
-        try
-        {
-            return _get();
-        }
-        rethrow(invalid_data_error)
-    }
-    operator const T* () const
+    operator T* () const
     {
         try
         {
@@ -95,26 +84,49 @@ public:
 protected:
     T* _get() const
     {
-        if (!m_valid) throw _error();
+        if (!m_valid) throw _error(m_ptr);
 
         return m_ptr;
     }
     void _set(T* data)
     {
-        if (!is_valid(data)) throw _error();
+        if (!is_valid(data)) throw _error(data);
 
         m_ptr = data;
         m_valid = true;
     }
-    invalid_data_error _error() const
+    invalid_data_error _error(const T* ptr) const
     {
         std::stringstream ex;
-        ex << "Data " << m_ptr << " contained in pointer " << this << " is invalid!";
-        return invalid_data_error(ex.str());
+        ex << "Data " << ptr << " contained in pointer " << this << " is invalid!";
+        return invalid_data_error(ex.str().c_str());
     }
 private:
     bool m_valid = false;
     T* m_ptr = nullptr;
+};
+
+template<typename T, bool = is_class<T>::value>
+class valid_ptr : public valid_ptr_base<T>
+{
+public:
+    using valid_ptr_base<T>::valid_ptr_base;
+};
+
+template<typename T>
+class valid_ptr<T, true> : public valid_ptr_base<T>
+{
+public:
+    using valid_ptr_base<T>::valid_ptr_base;
+
+    T* operator->() const
+    {
+        try
+        {
+            return valid_ptr_base<T>::_get();
+        }
+        rethrow(invalid_data_error)
+    }
 };
 
 end_basics_namespace(system)

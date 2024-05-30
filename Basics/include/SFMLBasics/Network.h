@@ -2,7 +2,7 @@
 #ifndef SFML_BASICS_NETWORK_H
 #define SFML_BASICS_NETWORK_H
 
-#include "SystemBasics/Config.h"
+#include "System.h"
 
 #if _DEBUG == 1
 #pragma comment(lib, "sfml-network-d.lib")

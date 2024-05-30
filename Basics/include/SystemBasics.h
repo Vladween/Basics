@@ -2,7 +2,8 @@
 #ifndef SYSTEM_BASICS_H
 #define SYSTEM_BASICS_H
 
-#include "SystemBasics/Config.h"
-#include "SystemBasics/valid_ptr.h"
+#include "SystemBasics/ChangeTracker.h"
+#include "SystemBasics/Manager.h"
+#include "SystemBasics/ConditionClasses.h"
 
 #endif
