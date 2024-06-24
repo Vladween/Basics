@@ -2,6 +2,7 @@
 This SFML based library will allow some basic game engine features, like animations, objects, servers, buttons and so on. 
 It consists of several modules: AppBasics, GraphicsBasics, NetworkBasics, OfficeBasics and GameBasics.
 Each of these modules provide their own unique functions and classes for easier game development.
+(Note: this README doesn't contain full documentation, repository is going to be updated soon) 
 ## How to include
 If you want to include this library in your Visual Studio project, do these steps:
 - Download Basics.rar file
